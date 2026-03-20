@@ -138,6 +138,7 @@
                     <th>Porz.</th>
                     <th>Kcal/g</th>
                     <th>Kcal/day</th>
+                    <th>Extra All.</th>
                 </tr>
             </thead>
             <tbody><!-- Righe generate da JS --></tbody>
@@ -150,7 +151,8 @@
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
-                    <td id="totalCalories"><strong>0</strong></td>
+                    <td id="totalCalories"><strong>1749</strong></td>
+                    <td><input type="number" id="extraTraining" value="0" onchange="calcRemaining()" style="width:65px;height:38px;border:2px solid #e74c3c;border-radius:8px" placeholder="0"></td>
                 </tr>
             </tfoot>
         </table>
@@ -257,6 +259,10 @@
         }
 
         // ← AVVIO IMMEDIATO
+        let extraCalories = 0;
+
+function calcRemaining() {
+    extraCalories
         renderTable();
     </script>
 </body>
