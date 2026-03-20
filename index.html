@@ -3,143 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Tracker - Tiziano</title>
+    <title>🥗 Macro Tracker - Tiziano</title>
     <style>
+        * { box-sizing: border-box; }
         body { 
-            font-family: system-ui, sans-serif; 
-            max-width: 600px; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            max-width: 650px; 
             margin: 0 auto; 
-            padding: 1rem; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 1.5rem 1rem; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2c3e50;
         }
         h1 { 
             text-align: center; 
-            color: #2c3e50; 
-            margin-bottom: 0.5rem;
+            color: white; 
+            margin: 0 0 1rem 0;
+            font-size: 1.8rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .subtitle {
             text-align: center; 
-            color: #7f8c8d; 
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
+            color: rgba(255,255,255,0.9); 
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         table { 
             width: 100%; 
-            border-collapse: collapse; 
-            margin: 1rem 0; 
-            background: white; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            border-radius: 12px;
-            overflow: hidden;
+            border-collapse: collapse;
+            font-size: 0.95rem;
         }
         th, td { 
-            padding: 1rem 0.5rem; 
-            text-align: center; 
-            border-bottom: 1px solid #ecf0f1;
+            padding: 1.1rem 0.6rem; 
+            text-align: center;
         }
         th { 
             background: linear-gradient(135deg, #3498db, #2980b9); 
             color: white; 
-            font-weight: 600; 
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         input { 
-            width: 55px; 
+            width: 60px; 
+            height: 42px;
             padding: 0.5rem; 
-            border: 2px solid #bdc3c7; 
-            border-radius: 8px; 
+            border: 2px solid #e1e8ed; 
+            border-radius: 10px; 
             font-size: 1rem; 
             text-align: center;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         input:focus { 
             outline: none; 
             border-color: #3498db; 
-            box-shadow: 0 0 0 3px rgba(52,152,219,0.1); 
+            box-shadow: 0 0 0 4px rgba(52,152,219,0.15); 
             transform: scale(1.05);
         }
+        .total-row { 
+            font-weight: 800; 
+            font-size: 1.3rem;
+        }
         .total { 
-            font-weight: bold; 
-            font-size: 1.3rem; 
             background: linear-gradient(135deg, #27ae60, #2ecc71) !important; 
             color: white !important;
         }
         .readonly { 
-            background: #ecf0f1; 
-            font-weight: 600; 
+            background: #f8f9fa; 
+            font-weight: 700; 
             color: #2c3e50;
+            font-size: 1rem;
         }
         .macro-name {
-            font-weight: 700;
-            color: #34495e;
-        }
-        button { 
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d); 
-            color: white; 
-            border: none; 
-            padding: 0.8rem 1.5rem; 
-            border-radius: 25px; 
-            cursor: pointer; 
-            margin: 0.3rem; 
-            font-weight: 600;
-            transition: all 0.2s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        button:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: 800;
+            color: #2c3e50;
+            font-size: 1.05rem;
         }
         .controls {
+            padding: 2rem 1.5rem;
             text-align: center;
-            margin-top: 1.5rem;
+            background: #f8f9fa;
         }
-        @media (max-width: 480px) { 
-            table { font-size: 0.85rem; } 
-            input { width: 45px; padding: 0.4rem; }
-            th, td { padding: 0.75rem 0.25rem; }
+        button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            padding: 1rem 2rem; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            margin: 0 0.5rem; 
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+            min-width: 120px;
+        }
+        button:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.6);
+        }
+        button:active {
+            transform: translateY(-1px);
+        }
+        @media (max-width: 500px) { 
+            body { padding: 1rem 0.5rem; }
+            table { font-size: 0.9rem; }
+            input { width: 50px; height: 38px; font-size: 0.95rem; }
+            th, td { padding: 0.9rem 0.3rem; }
+            .macro-name { font-size: 1rem; }
         }
     </style>
 </head>
 <body>
     <h1>🥗 Macro Tracker</h1>
-    <p class="subtitle">Aggiorna A (assunte) durante la giornata per vedere R (restanti)</p>
+    <p class="subtitle">Aggiorna <strong>A</strong> (assunte) per vedere <strong>R</strong> (restanti) in tempo reale</p>
     
-    <table id="macroTable">
-        <thead>
-            <tr>
-                <th>Macro</th>
-                <th>A</th>
-                <th>R</th>
-                <th>Target</th>
-                <th>Gr/day</th>
-                <th>Porz.</th>
-                <th>Cal/Gr</th>
-                <th>Cal/day</th>
-            </tr>
-        </thead>
-        <tbody><!-- Righe JS --></tbody>
-        <tfoot>
-            <tr class="total">
-                <td><strong>TOTALE</strong></td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td id="totalCalories">0</td>
-            </tr>
-        </tfoot>
-    </table>
-    
-    <div class="controls">
-        <button onclick="resetDay()">🔄 Reset A=0</button>
-        <button onclick="savePreset()">💾 Salva Preset</button>
-        <button onclick="loadPreset()">📂 Carica Preset</button>
+    <div class="container">
+        <table id="macroTable">
+            <thead>
+                <tr>
+                    <th>Macro</th>
+                    <th>A</th>
+                    <th>R</th>
+                    <th>Target</th>
+                    <th>Gr/day</th>
+                    <th>Porz.</th>
+                    <th>Kcal/g</th>
+                    <th>Kcal/day</th>
+                </tr>
+            </thead>
+            <tbody><!-- Righe generate da JS --></tbody>
+            <tfoot>
+                <tr class="total-row total">
+                    <td><strong>📊 TOTALE</strong></td>
+                    <td id="totalA"><strong>-</strong></td>
+                    <td id="totalR"><strong>-</strong></td>
+                    <td id="totalTarget"><strong>-</strong></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td id="totalCalories"><strong>0</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="controls">
+            <button onclick="resetDay()">🔄 Reset A=0</button>
+            <button onclick="savePreset()">💾 Salva Preset</button>
+            <button onclick="loadPreset()">📂 Carica Preset</button>
+        </div>
     </div>
 
     <script>
-        // Dati ESATTAMENTE dal tuo sheet "Calcolatore"
+        // ESATTAMENTE dal tuo foglio "Calcolatore" [file:1]
         const defaultMacros = [
             { name: 'Proteine', porz: 20, calGr: 4, target: 5, a: 0 },
             { name: 'Carbo', porz: 20, calGr: 4, target: 7, a: 0 },
@@ -148,42 +172,47 @@
             { name: 'Verdure', porz: 150, calGr: 0.3, target: 2, a: 0 }
         ];
 
-        let tableData = defaultMacros;
+        let tableData = [...defaultMacros];
 
-        // Pulizia localeStorage (fix definitivo)
-        localStorage.removeItem('tableData');
-        localStorage.removeItem('macroPreset');
-
-       function renderTable() {
-    const tbody = document.querySelector('#macroTable tbody');
-    tbody.innerHTML = '';
-    
-    let totalCal = 0;
-    
-    tableData.forEach((row, index) => {
-        row.r = Math.max(0, row.target - row.a);
-        const grammiDay = row.target * row.porz;
-        const calDay = grammiDay * row.calGr;
-        totalCal += calDay;  // ← Questo accumula QUI
-        
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="macro-name">${row.name}</td>
-            <td><input type="number" min="0" step="0.1" value="${row.a}" onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
-            <td class="readonly">${row.r.toFixed(1)}</td>
-            <td><input type="number" min="0" step="0.1" value="${row.target}" onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
-            <td class="readonly">${grammiDay.toFixed(0)}</td>
-            <td class="readonly">${row.porz}</td>
-            <td class="readonly">${row.calGr}</td>
-            <td class="readonly">${calDay.toFixed(0)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-    
-    // ← FORZA aggiornamento totale
-    document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
-    console.log('Totale calcolato:', totalCal.toFixed(0)); // Debug
-}
+        function renderTable() {
+            const tbody = document.querySelector('#macroTable tbody');
+            tbody.innerHTML = '';
+            
+            let sumA = 0, sumR = 0, sumTarget = 0, totalCal = 0;
+            
+            tableData.forEach((row, index) => {
+                // Calcoli
+                row.r = Math.max(0, row.target - row.a);
+                const grammiDay = row.target * row.porz;
+                const calDay = grammiDay * row.calGr;
+                
+                // Somme totali
+                sumA += row.a;
+                sumR += row.r;
+                sumTarget += row.target;
+                totalCal += calDay;
+                
+                // Riga tabella
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="macro-name">${row.name}</td>
+                    <td><input type="number" min="0" step="0.1" value="${row.a.toFixed(1)}" onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
+                    <td class="readonly">${row.r.toFixed(1)}</td>
+                    <td><input type="number" min="0" step="0.1" value="${row.target.toFixed(1)}" onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
+                    <td class="readonly">${grammiDay.toFixed(0)}</td>
+                    <td class="readonly">${row.porz}</td>
+                    <td class="readonly">${row.calGr.toFixed(2)}</td>
+                    <td class="readonly">${calDay.toFixed(0)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // ← TOTALI COMPLETI nella riga verde!
+            document.getElementById('totalA').textContent = sumA.toFixed(1);
+            document.getElementById('totalR').textContent = sumR.toFixed(1);
+            document.getElementById('totalTarget').textContent = sumTarget.toFixed(1);
+            document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
+        }
 
         function updateA(index, value) {
             tableData[index].a = Math.min(value, tableData[index].target);
@@ -202,9 +231,9 @@
         }
 
         function savePreset() {
-            const preset = tableData.map(d => ({target: d.target, porz: d.porz, calGr: d.calGr}));
+            const preset = tableData.map(({target, porz, calGr}) => ({target, porz, calGr}));
             localStorage.setItem('macroPreset', JSON.stringify(preset));
-            alert('✅ Preset salvato!');
+            alert('✅ Preset salvato nei Targets!');
         }
 
         function loadPreset() {
@@ -212,9 +241,9 @@
                 const saved = localStorage.getItem('macroPreset');
                 if (saved) {
                     const preset = JSON.parse(saved);
-                    tableData = defaultMacros.map((m, i) => ({
-                        ...m,
-                        target: preset[i]?.target || m.target,
+                    tableData = defaultMacros.map((def, i) => ({
+                        ...def,
+                        target: preset[i]?.target || def.target,
                         a: 0
                     }));
                     renderTable();
@@ -222,12 +251,12 @@
                 } else {
                     alert('❌ Nessun preset salvato');
                 }
-            } catch(e) {
+            } catch {
                 alert('❌ Errore caricamento');
             }
         }
 
-        // Inizializza
+        // ← AVVIO IMMEDIATO
         renderTable();
     </script>
 </body>
