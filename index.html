@@ -195,6 +195,20 @@ const defaultMacros = [
 const BASE_TARGET_CAL = 1749;
 
 let tableData = [...defaultMacros];
+        // Carica dati del giorno corrente (persiste!)
+const today = new Date().toDateString();
+let savedData = localStorage.getItem(`dayData_${today}`);
+if (savedData) {
+    const loaded = JSON.parse(savedData);
+    tableData = defaultMacros.map((def, i) => ({
+        ...def,
+        ...loaded.tableData[i],
+        a: loaded.tableData[i]?.a || 0
+    }));
+    extraCalories = loaded.extraCalories || 0;
+    document.getElementById('extraCal').value = extraCalories;
+}
+
 let extraCalories = 0;   // calorie extra allenamento
 
 function renderTable() {
@@ -232,7 +246,13 @@ function renderTable() {
             <td class="readonly">${calDay.toFixed(0)}</td>
         `;
         tbody.appendChild(tr);
-    });
+    // Salva dati del giorno corrente
+localStorage.setItem(`dayData_${today}`, JSON.stringify({
+    tableData,
+    extraCalories,
+    date: today
+}));
+
     
     // Totali riga verde
     document.getElementById('totalA').textContent       = sumA.toFixed(1);
