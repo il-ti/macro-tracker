@@ -154,34 +154,36 @@
         localStorage.removeItem('tableData');
         localStorage.removeItem('macroPreset');
 
-        function renderTable() {
-            const tbody = document.querySelector('#macroTable tbody');
-            tbody.innerHTML = '';
-            
-            let totalCal = 0;
-            
-            tableData.forEach((row, index) => {
-                row.r = Math.max(0, row.target - row.a);
-                const grammiDay = row.target * row.porz;
-                const calDay = grammiDay * row.calGr;
-                totalCal += calDay;
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="macro-name">${row.name}</td>
-                    <td><input type="number" min="0" step="0.1" value="${row.a}" onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
-                    <td class="readonly">${row.r.toFixed(1)}</td>
-                    <td><input type="number" min="0" step="0.1" value="${row.target}" onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
-                    <td class="readonly">${grammiDay.toFixed(0)}</td>
-                    <td class="readonly">${row.porz}</td>
-                    <td class="readonly">${row.calGr}</td>
-                    <td class="readonly">${calDay.toFixed(0)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-            
-            document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
-        }
+       function renderTable() {
+    const tbody = document.querySelector('#macroTable tbody');
+    tbody.innerHTML = '';
+    
+    let totalCal = 0;
+    
+    tableData.forEach((row, index) => {
+        row.r = Math.max(0, row.target - row.a);
+        const grammiDay = row.target * row.porz;
+        const calDay = grammiDay * row.calGr;
+        totalCal += calDay;  // ← Questo accumula QUI
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="macro-name">${row.name}</td>
+            <td><input type="number" min="0" step="0.1" value="${row.a}" onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
+            <td class="readonly">${row.r.toFixed(1)}</td>
+            <td><input type="number" min="0" step="0.1" value="${row.target}" onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
+            <td class="readonly">${grammiDay.toFixed(0)}</td>
+            <td class="readonly">${row.porz}</td>
+            <td class="readonly">${row.calGr}</td>
+            <td class="readonly">${calDay.toFixed(0)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    // ← FORZA aggiornamento totale
+    document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
+    console.log('Totale calcolato:', totalCal.toFixed(0)); // Debug
+}
 
         function updateA(index, value) {
             tableData[index].a = Math.min(value, tableData[index].target);
