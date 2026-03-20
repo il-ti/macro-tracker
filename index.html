@@ -169,121 +169,135 @@
     </div>
 
     <script>
-        // ESATTAMENTE dal tuo foglio "Calcolatore" [file:1]
-        const defaultMacros = [
-            { name: 'Proteine', porz: 20, calGr: 4, target: 5, a: 0 },
-            { name: 'Carbo', porz: 20, calGr: 4, target: 7, a: 0 },
-            { name: 'Grassi', porz: 10, calGr: 9, target: 6, a: 0 },
-            { name: 'Frutta', porz: 150, calGr: 0.53, target: 2, a: 0 },
-            { name: 'Verdure', porz: 150, calGr: 0.3, target: 2, a: 0 }
-        ];
+       // Dati ESATTAMENTE dal tuo foglio "Calcolatore"
+const defaultMacros = [
+    { name: 'Proteine', porz: 20, calGr: 4,    target: 5, a: 0 },
+    { name: 'Carbo',    porz: 20, calGr: 4,    target: 7, a: 0 },
+    { name: 'Grassi',   porz: 10, calGr: 9,    target: 6, a: 0 },
+    { name: 'Frutta',   porz: 150, calGr: 0.53,target: 2, a: 0 },
+    { name: 'Verdure',  porz: 150, calGr: 0.3, target: 2, a: 0 }
+];
 
-        let tableData = [...defaultMacros];
+// fabbisogno calorico base (dal tuo Excel)
+const BASE_TARGET_CAL = 1749;
 
-        function renderTable() {
-            const tbody = document.querySelector('#macroTable tbody');
-            tbody.innerHTML = '';
-            
-            let sumA = 0, sumR = 0, sumTarget = 0, totalCal = 0;
-            
-            tableData.forEach((row, index) => {
-                // Calcoli
-                row.r = Math.max(0, row.target - row.a);
-                const grammiDay = row.target * row.porz;
-                const calDay = grammiDay * row.calGr;
-                
-                // Somme totali
-                sumA += row.a;
-                sumR += row.r;
-                sumTarget += row.target;
-                totalCal += calDay;
-                
-                // Riga tabella
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="macro-name">${row.name}</td>
-                    <td><input type="number" min="0" step="0.1" value="${row.a.toFixed(1)}" onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
-                    <td class="readonly">${row.r.toFixed(1)}</td>
-                    <td><input type="number" min="0" step="0.1" value="${row.target.toFixed(1)}" onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
-                    <td class="readonly">${grammiDay.toFixed(0)}</td>
-                    <td class="readonly">${row.porz}</td>
-                    <td class="readonly">${row.calGr.toFixed(2)}</td>
-                    <td class="readonly">${calDay.toFixed(0)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-            
-            // ← TOTALI COMPLETI nella riga verde!
-            document.getElementById('totalA').textContent = sumA.toFixed(1);
-            document.getElementById('totalR').textContent = sumR.toFixed(1);
-            document.getElementById('totalTarget').textContent = sumTarget.toFixed(1);
-            document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
-        }
+let tableData = [...defaultMacros];
+let extraCalories = 0;   // calorie extra allenamento
 
-        function updateA(index, value) {
-            tableData[index].a = Math.min(value, tableData[index].target);
+function renderTable() {
+    const tbody = document.querySelector('#macroTable tbody');
+    tbody.innerHTML = '';
+    
+    let sumA = 0, sumR = 0, sumTarget = 0, totalCal = 0;
+    
+    tableData.forEach((row, index) => {
+        // Calcoli per riga
+        row.r = Math.max(0, row.target - row.a);
+        const grammiDay = row.target * row.porz;
+        const calDay    = grammiDay * row.calGr;
+        
+        // Somme totali
+        sumA      += row.a;
+        sumR      += row.r;
+        sumTarget += row.target;
+        totalCal  += calDay;
+        
+        // Costruzione riga
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="macro-name">${row.name}</td>
+            <td><input type="number" min="0" step="0.1"
+                       value="${row.a.toFixed(1)}"
+                       onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
+            <td class="readonly">${row.r.toFixed(1)}</td>
+            <td><input type="number" min="0" step="0.1"
+                       value="${row.target.toFixed(1)}"
+                       onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
+            <td class="readonly">${grammiDay.toFixed(0)}</td>
+            <td class="readonly">${row.porz}</td>
+            <td class="readonly">${row.calGr.toFixed(2)}</td>
+            <td class="readonly">${calDay.toFixed(0)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    // Totali riga verde
+    document.getElementById('totalA').textContent       = sumA.toFixed(1);
+    document.getElementById('totalR').textContent       = sumR.toFixed(1);
+    document.getElementById('totalTarget').textContent  = sumTarget.toFixed(1);
+    document.getElementById('totalCalories').textContent= totalCal.toFixed(0);
+    
+    // Aggiorna anche il riquadro "Rimaste"
+    updateRemaining();
+}
+
+function updateA(index, value) {
+    tableData[index].a = Math.min(value, tableData[index].target);
+    renderTable();
+}
+
+function updateTarget(index, value) {
+    tableData[index].target = value;
+    tableData[index].a = Math.min(tableData[index].a, value);
+    renderTable();
+}
+
+function resetDay() {
+    tableData.forEach(row => row.a = 0);
+    renderTable();
+}
+
+function savePreset() {
+    const preset = tableData.map(({target, porz, calGr}) => ({target, porz, calGr}));
+    localStorage.setItem('macroPreset', JSON.stringify(preset));
+    alert('✅ Preset salvato nei Targets!');
+}
+
+function loadPreset() {
+    try {
+        const saved = localStorage.getItem('macroPreset');
+        if (saved) {
+            const preset = JSON.parse(saved);
+            tableData = defaultMacros.map((def, i) => ({
+                ...def,
+                target: preset[i]?.target || def.target,
+                a: 0
+            }));
             renderTable();
+            alert('✅ Preset caricato!');
+        } else {
+            alert('❌ Nessun preset salvato');
         }
+    } catch {
+        alert('❌ Errore caricamento');
+    }
+}
 
-        function updateTarget(index, value) {
-            tableData[index].target = value;
-            tableData[index].a = Math.min(tableData[index].a, value);
-            renderTable();
-        }
-
-        function resetDay() {
-            tableData.forEach(row => row.a = 0);
-            renderTable();
-        }
-
-        function savePreset() {
-            const preset = tableData.map(({target, porz, calGr}) => ({target, porz, calGr}));
-            localStorage.setItem('macroPreset', JSON.stringify(preset));
-            alert('✅ Preset salvato nei Targets!');
-        }
-
-        function loadPreset() {
-            try {
-                const saved = localStorage.getItem('macroPreset');
-                if (saved) {
-                    const preset = JSON.parse(saved);
-                    tableData = defaultMacros.map((def, i) => ({
-                        ...def,
-                        target: preset[i]?.target || def.target,
-                        a: 0
-                    }));
-                    renderTable();
-                    alert('✅ Preset caricato!');
-                } else {
-                    alert('❌ Nessun preset salvato');
-                }
-            } catch {
-                alert('❌ Errore caricamento');
-            }
-        }
-
-        // ← AVVIO IMMEDIATO
-        let extraCalories = 0;
-
-function calcRemaining() {
-    extraCalories
-        renderTable();
-    let extraCalories = 0;
+// --- Gestione calorie extra allenamento ----
 
 function updateExtra() {
     extraCalories = parseFloat(document.getElementById('extraCal').value) || 0;
-    const totalTargetCal = 1749; // dal tuo sheet
-    const consumedCal = tableData.reduce((sum, row) => sum + (row.a * row.porz * row.calGr), 0);
-    const remaining = totalTargetCal + extraCalories - consumedCal;
-    document.getElementById('calRemaining').textContent = `Rimaste: ${Math.max(0, remaining).toFixed(0)}`;
+    updateRemaining();
 }
 
-// Aggiorna calorie consumate quando cambi A
-const oldRender = renderTable;
-renderTable = function() {
-    oldRender();
-    updateExtra(); // Ricalcola rimaste
-};
+function updateRemaining() {
+    // calorie consumate finora in base alle porzioni A
+    const consumed = tableData.reduce(
+        (sum, row) => sum + (row.a * row.porz * row.calGr),
+        0
+    );
+    const available = BASE_TARGET_CAL + extraCalories;
+    const remaining = Math.max(0, available - consumed);
+    
+    const span = document.getElementById('calRemaining');
+    if (span) {
+        span.textContent = `Rimaste: ${remaining.toFixed(0)}`;
+    }
+}
+
+// Avvio
+renderTable();
+updateExtra();   // inizializza "Rimaste"
 
     </script>
 </body>
