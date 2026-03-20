@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macro Tracker - Tiziano</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; background: #f8f9fa; }
+        h1 { text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { padding: 0.75rem; text-align: center; border-bottom: 1px solid #eee; }
+        th { background: #007bff; color: white; font-weight: 600; }
+        input { width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; text-align: center; }
+        input:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
+        .total { font-weight: bold; font-size: 1.2rem; background: #28a745 !important; color: white; }
+        .readonly { background: #f8f9fa; font-weight: bold; }
+        button { background: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; margin: 0.5rem; }
+        button:hover { background: #5a6268; }
+        @media (max-width: 480px) { table { font-size: 0.9rem; } input { width: 50px; } }
+    </style>
+</head>
+<body>
+    <h1>Macro Tracker Giornaliero</h1>
+    <p style="text-align: center; color: #666;">Aggiorna A (assunte) durante la giornata per vedere R (restanti)</p>
+    
+    <table id="macroTable">
+        <thead>
+            <tr>
+                <th>Macro</th>
+                <th>A</th>
+                <th>R</th>
+                <th>Target</th>
+                <th>Grammi/day</th>
+                <th>Gr. Per porz.</th>
+                <th>Cal/Gr</th>
+                <th>Calorie/day</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Righe generate da JS -->
+        </tbody>
+        <tfoot>
+            <tr class="total">
+                <td><strong>TOTALE</strong></td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td id="totalCalories">-</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <div style="text-align: center;">
+        <button onclick="resetDay()">Reset Giornata</button>
+        <button onclick="savePreset()">Salva Preset</button>
+        <button onclick="loadPreset()">Carica Preset</button>
+    </div>
+
+    <script>
+        // Dati macro dal tuo sheet (modificabili)
+        const macros = [
+            { name: 'Proteine', porz: 20, calGr: 4, target: 5 },
+            { name: 'Carbo', porz: 20, calGr: 4, target: 7 },
+            { name: 'Grassi', porz: 10, calGr: 9, target: 6 },
+            { name: 'Frutta', porz: 150, calGr: 0.53, target: 2 },
+            { name: 'Verdure', porz: 150, calGr: 0.3, target: 2 }
+        ];
+
+        let tableData = macros.map(m => ({ ...m, a: 0, r: m.target }));
+
+        function renderTable() {
+            const tbody = document.querySelector('#macroTable tbody');
+            tbody.innerHTML = '';
+            
+            let totalCal = 0;
+            
+            tableData.forEach((row, index) => {
+                const grammiDay = row.target * row.porz;
+                const calDay = grammiDay * row.calGr;
+                totalCal += calDay;
+                row.r = row.target - row.a; // R = Target - A
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.name}</td>
+                    <td><input type="number" min="0" value="${row.a}" onchange="updateA(${index}, this.value)"></td>
+                    <td class="readonly">${row.r.toFixed(1)}</td>
+                    <td><input type="number" min="0" step="0.5" value="${row.target}" onchange="updateTarget(${index}, this.value)"></td>
+                    <td class="readonly">${grammiDay.toFixed(0)}</td>
+                    <td class="readonly">${row.porz}</td>
+                    <td class="readonly">${row.calGr}</td>
+                    <td class="readonly">${calDay.toFixed(0)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
+        }
+
+        function updateA(index, value) {
+            tableData[index].a = parseFloat(value) || 0;
+            renderTable();
+        }
+
+        function updateTarget(index, value) {
+            tableData[index].target = parseFloat(value) || 0;
+            renderTable();
+        }
+
+        function resetDay() {
+            tableData = macros.map(m => ({ ...m, a: 0, r: m.target }));
+            localStorage.removeItem('macroPreset');
+            renderTable();
+        }
+
+        function savePreset() {
+            localStorage.setItem('macroPreset', JSON.stringify(tableData.map(d => ({target: d.target, porz: d.porz, calGr: d.calGr}))));
+            alert('Preset salvato!');
+        }
+
+        function loadPreset() {
+            const saved = localStorage.getItem('macroPreset');
+            if (saved) {
+                const preset = JSON.parse(saved);
+                tableData = macros.map((m, i) => ({ ...m, target: preset[i]?.target || m.target, a: 0, r: preset[i]?.target || m.target }));
+                renderTable();
+            } else {
+                alert('Nessun preset salvato');
+            }
+        }
+
+        // Init
+        renderTable();
+    </script>
+</body>
+</html>
