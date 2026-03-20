@@ -246,8 +246,7 @@ function renderTable() {
             <td class="readonly">${calDay.toFixed(0)}</td>
         `;
         tbody.appendChild(tr);
-    // Salva dati del giorno corrente
-localStorage.setItem(`dayData_${today}`, JSON.stringify({
+ 
     tableData,
     extraCalories,
     date: today
@@ -259,7 +258,11 @@ localStorage.setItem(`dayData_${today}`, JSON.stringify({
     document.getElementById('totalR').textContent       = sumR.toFixed(1);
     document.getElementById('totalTarget').textContent  = sumTarget.toFixed(1);
     document.getElementById('totalCalories').textContent= totalCal.toFixed(0);
-    
+    // ← AGGIUNGI QUI
+localStorage.setItem(`dayData_${today}`, JSON.stringify({
+    tableData,
+    extraCalories,
+    date
     // Aggiorna anche il riquadro "Rimaste"
     updateRemaining();
 }
