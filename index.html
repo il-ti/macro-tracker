@@ -5,23 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macro Tracker - Tiziano</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 1rem; background: #f8f9fa; }
-        h1 { text-align: center; color: #333; }
-        table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        th, td { padding: 0.75rem; text-align: center; border-bottom: 1px solid #eee; }
-        th { background: #007bff; color: white; font-weight: 600; }
-        input { width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; text-align: center; }
-        input:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
-        .total { font-weight: bold; font-size: 1.2rem; background: #28a745 !important; color: white; }
-        .readonly { background: #f8f9fa; font-weight: bold; }
-        button { background: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; margin: 0.5rem; }
-        button:hover { background: #5a6268; }
-        @media (max-width: 480px) { table { font-size: 0.9rem; } input { width: 50px; } }
+        body { 
+            font-family: system-ui, sans-serif; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 1rem; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        h1 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center; 
+            color: #7f8c8d; 
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 1rem 0; 
+            background: white; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        th, td { 
+            padding: 1rem 0.5rem; 
+            text-align: center; 
+            border-bottom: 1px solid #ecf0f1;
+        }
+        th { 
+            background: linear-gradient(135deg, #3498db, #2980b9); 
+            color: white; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+        }
+        input { 
+            width: 55px; 
+            padding: 0.5rem; 
+            border: 2px solid #bdc3c7; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            text-align: center;
+            transition: all 0.2s;
+        }
+        input:focus { 
+            outline: none; 
+            border-color: #3498db; 
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.1); 
+            transform: scale(1.05);
+        }
+        .total { 
+            font-weight: bold; 
+            font-size: 1.3rem; 
+            background: linear-gradient(135deg, #27ae60, #2ecc71) !important; 
+            color: white !important;
+        }
+        .readonly { 
+            background: #ecf0f1; 
+            font-weight: 600; 
+            color: #2c3e50;
+        }
+        .macro-name {
+            font-weight: 700;
+            color: #34495e;
+        }
+        button { 
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d); 
+            color: white; 
+            border: none; 
+            padding: 0.8rem 1.5rem; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            margin: 0.3rem; 
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .controls {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        @media (max-width: 480px) { 
+            table { font-size: 0.85rem; } 
+            input { width: 45px; padding: 0.4rem; }
+            th, td { padding: 0.75rem 0.25rem; }
+        }
     </style>
 </head>
 <body>
-    <h1>Macro Tracker Giornaliero</h1>
-    <p style="text-align: center; color: #666;">Aggiorna A (assunte) durante la giornata per vedere R (restanti)</p>
+    <h1>🥗 Macro Tracker</h1>
+    <p class="subtitle">Aggiorna A (assunte) durante la giornata per vedere R (restanti)</p>
     
     <table id="macroTable">
         <thead>
@@ -30,15 +111,13 @@
                 <th>A</th>
                 <th>R</th>
                 <th>Target</th>
-                <th>Grammi/day</th>
-                <th>Gr. Per porz.</th>
+                <th>Gr/day</th>
+                <th>Porz.</th>
                 <th>Cal/Gr</th>
-                <th>Calorie/day</th>
+                <th>Cal/day</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Righe generate da JS -->
-        </tbody>
+        <tbody><!-- Righe JS --></tbody>
         <tfoot>
             <tr class="total">
                 <td><strong>TOTALE</strong></td>
@@ -53,49 +132,46 @@
         </tfoot>
     </table>
     
-    <div style="text-align: center;">
-        <button onclick="resetDay()">Reset Giornata</button>
-        <button onclick="savePreset()">Salva Preset</button>
-        <button onclick="loadPreset()">Carica Preset</button>
+    <div class="controls">
+        <button onclick="resetDay()">🔄 Reset A=0</button>
+        <button onclick="savePreset()">💾 Salva Preset</button>
+        <button onclick="loadPreset()">📂 Carica Preset</button>
     </div>
 
     <script>
-        // Dati macro corretti dal tuo sheet (senza duplicati)
+        // Dati ESATTAMENTE dal tuo sheet "Calcolatore"
         const defaultMacros = [
-            { name: 'Proteine', porz: 20, calGr: 4, target: 5 },
-            { name: 'Carbo', porz: 20, calGr: 4, target: 7 },
-            { name: 'Grassi', porz: 10, calGr: 9, target: 6 },
-            { name: 'Frutta', porz: 150, calGr: 0.53, target: 2 },
-            { name: 'Verdure', porz: 150, calGr: 0.3, target: 2 }
+            { name: 'Proteine', porz: 20, calGr: 4, target: 5, a: 0 },
+            { name: 'Carbo', porz: 20, calGr: 4, target: 7, a: 0 },
+            { name: 'Grassi', porz: 10, calGr: 9, target: 6, a: 0 },
+            { name: 'Frutta', porz: 150, calGr: 0.53, target: 2, a: 0 },
+            { name: 'Verdure', porz: 150, calGr: 0.3, target: 2, a: 0 }
         ];
 
-        let tableData = JSON.parse(localStorage.getItem('tableData')) || defaultMacros.map(m => ({ ...m, a: 0 }));
+        let tableData = defaultMacros;
 
-        function calculateTotals() {
-            let totalCal = 0;
-            tableData.forEach(row => {
-                const grammiDay = row.target * row.porz;
-                const calDay = grammiDay * row.calGr;
-                row.r = Math.max(0, row.target - row.a);
-                totalCal += calDay;
-            });
-            return totalCal;
-        }
+        // Pulizia localeStorage (fix definitivo)
+        localStorage.removeItem('tableData');
+        localStorage.removeItem('macroPreset');
 
         function renderTable() {
             const tbody = document.querySelector('#macroTable tbody');
             tbody.innerHTML = '';
             
+            let totalCal = 0;
+            
             tableData.forEach((row, index) => {
+                row.r = Math.max(0, row.target - row.a);
                 const grammiDay = row.target * row.porz;
                 const calDay = grammiDay * row.calGr;
+                totalCal += calDay;
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${row.name}</td>
-                    <td><input type="number" min="0" step="0.1" value="${row.a}" onchange="updateValue(${index}, 'a', this.value)"></td>
+                    <td class="macro-name">${row.name}</td>
+                    <td><input type="number" min="0" step="0.1" value="${row.a}" onchange="updateA(${index}, parseFloat(this.value)||0)"></td>
                     <td class="readonly">${row.r.toFixed(1)}</td>
-                    <td><input type="number" min="0" step="0.1" value="${row.target}" onchange="updateValue(${index}, 'target', this.value)"></td>
+                    <td><input type="number" min="0" step="0.1" value="${row.target}" onchange="updateTarget(${index}, parseFloat(this.value)||0)"></td>
                     <td class="readonly">${grammiDay.toFixed(0)}</td>
                     <td class="readonly">${row.porz}</td>
                     <td class="readonly">${row.calGr}</td>
@@ -104,47 +180,53 @@
                 tbody.appendChild(tr);
             });
             
-            const total = calculateTotals();
-            document.getElementById('totalCalories').textContent = total.toFixed(0);
-            localStorage.setItem('tableData', JSON.stringify(tableData));
+            document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
         }
 
-        function updateValue(index, field, value) {
-            tableData[index][field] = parseFloat(value) || 0;
-            if (field === 'target') tableData[index].r = tableData[index].target;
+        function updateA(index, value) {
+            tableData[index].a = Math.min(value, tableData[index].target);
+            renderTable();
+        }
+
+        function updateTarget(index, value) {
+            tableData[index].target = value;
+            tableData[index].a = Math.min(tableData[index].a, value);
             renderTable();
         }
 
         function resetDay() {
-            tableData = defaultMacros.map(m => ({ ...m, a: 0 }));
-            localStorage.setItem('tableData', JSON.stringify(tableData));
+            tableData.forEach(row => row.a = 0);
             renderTable();
         }
 
         function savePreset() {
             const preset = tableData.map(d => ({target: d.target, porz: d.porz, calGr: d.calGr}));
             localStorage.setItem('macroPreset', JSON.stringify(preset));
-            alert('Preset salvato!');
+            alert('✅ Preset salvato!');
         }
 
         function loadPreset() {
-            const saved = localStorage.getItem('macroPreset');
-            if (saved) {
-                const preset = JSON.parse(saved);
-                tableData = defaultMacros.map((m, i) => ({ 
-                    ...m, 
-                    target: preset[i]?.target || m.target, 
-                    a: 0 
-                }));
-                renderTable();
-            } else {
-                alert('Nessun preset salvato');
+            try {
+                const saved = localStorage.getItem('macroPreset');
+                if (saved) {
+                    const preset = JSON.parse(saved);
+                    tableData = defaultMacros.map((m, i) => ({
+                        ...m,
+                        target: preset[i]?.target || m.target,
+                        a: 0
+                    }));
+                    renderTable();
+                    alert('✅ Preset caricato!');
+                } else {
+                    alert('❌ Nessun preset salvato');
+                }
+            } catch(e) {
+                alert('❌ Errore caricamento');
             }
         }
 
-        // Init e salva auto
-        window.onload = renderTable;
-        window.onbeforeunload = () => localStorage.setItem('tableData', JSON.stringify(tableData));
+        // Inizializza
+        renderTable();
     </script>
 </body>
 </html>
