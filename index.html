@@ -48,7 +48,7 @@
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
-                <td id="totalCalories">-</td>
+                <td id="totalCalories">0</td>
             </tr>
         </tfoot>
     </table>
@@ -60,8 +60,8 @@
     </div>
 
     <script>
-        // Dati macro dal tuo sheet (modificabili)
-        const macros = [
+        // Dati macro corretti dal tuo sheet (senza duplicati)
+        const defaultMacros = [
             { name: 'Proteine', porz: 20, calGr: 4, target: 5 },
             { name: 'Carbo', porz: 20, calGr: 4, target: 7 },
             { name: 'Grassi', porz: 10, calGr: 9, target: 6 },
@@ -69,26 +69,33 @@
             { name: 'Verdure', porz: 150, calGr: 0.3, target: 2 }
         ];
 
-        let tableData = macros.map(m => ({ ...m, a: 0, r: m.target }));
+        let tableData = JSON.parse(localStorage.getItem('tableData')) || defaultMacros.map(m => ({ ...m, a: 0 }));
+
+        function calculateTotals() {
+            let totalCal = 0;
+            tableData.forEach(row => {
+                const grammiDay = row.target * row.porz;
+                const calDay = grammiDay * row.calGr;
+                row.r = Math.max(0, row.target - row.a);
+                totalCal += calDay;
+            });
+            return totalCal;
+        }
 
         function renderTable() {
             const tbody = document.querySelector('#macroTable tbody');
             tbody.innerHTML = '';
             
-            let totalCal = 0;
-            
             tableData.forEach((row, index) => {
                 const grammiDay = row.target * row.porz;
                 const calDay = grammiDay * row.calGr;
-                totalCal += calDay;
-                row.r = row.target - row.a; // R = Target - A
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.name}</td>
-                    <td><input type="number" min="0" value="${row.a}" onchange="updateA(${index}, this.value)"></td>
+                    <td><input type="number" min="0" step="0.1" value="${row.a}" onchange="updateValue(${index}, 'a', this.value)"></td>
                     <td class="readonly">${row.r.toFixed(1)}</td>
-                    <td><input type="number" min="0" step="0.5" value="${row.target}" onchange="updateTarget(${index}, this.value)"></td>
+                    <td><input type="number" min="0" step="0.1" value="${row.target}" onchange="updateValue(${index}, 'target', this.value)"></td>
                     <td class="readonly">${grammiDay.toFixed(0)}</td>
                     <td class="readonly">${row.porz}</td>
                     <td class="readonly">${row.calGr}</td>
@@ -97,27 +104,26 @@
                 tbody.appendChild(tr);
             });
             
-            document.getElementById('totalCalories').textContent = totalCal.toFixed(0);
+            const total = calculateTotals();
+            document.getElementById('totalCalories').textContent = total.toFixed(0);
+            localStorage.setItem('tableData', JSON.stringify(tableData));
         }
 
-        function updateA(index, value) {
-            tableData[index].a = parseFloat(value) || 0;
-            renderTable();
-        }
-
-        function updateTarget(index, value) {
-            tableData[index].target = parseFloat(value) || 0;
+        function updateValue(index, field, value) {
+            tableData[index][field] = parseFloat(value) || 0;
+            if (field === 'target') tableData[index].r = tableData[index].target;
             renderTable();
         }
 
         function resetDay() {
-            tableData = macros.map(m => ({ ...m, a: 0, r: m.target }));
-            localStorage.removeItem('macroPreset');
+            tableData = defaultMacros.map(m => ({ ...m, a: 0 }));
+            localStorage.setItem('tableData', JSON.stringify(tableData));
             renderTable();
         }
 
         function savePreset() {
-            localStorage.setItem('macroPreset', JSON.stringify(tableData.map(d => ({target: d.target, porz: d.porz, calGr: d.calGr}))));
+            const preset = tableData.map(d => ({target: d.target, porz: d.porz, calGr: d.calGr}));
+            localStorage.setItem('macroPreset', JSON.stringify(preset));
             alert('Preset salvato!');
         }
 
@@ -125,15 +131,20 @@
             const saved = localStorage.getItem('macroPreset');
             if (saved) {
                 const preset = JSON.parse(saved);
-                tableData = macros.map((m, i) => ({ ...m, target: preset[i]?.target || m.target, a: 0, r: preset[i]?.target || m.target }));
+                tableData = defaultMacros.map((m, i) => ({ 
+                    ...m, 
+                    target: preset[i]?.target || m.target, 
+                    a: 0 
+                }));
                 renderTable();
             } else {
                 alert('Nessun preset salvato');
             }
         }
 
-        // Init
-        renderTable();
+        // Init e salva auto
+        window.onload = renderTable;
+        window.onbeforeunload = () => localStorage.setItem('tableData', JSON.stringify(tableData));
     </script>
 </body>
 </html>
